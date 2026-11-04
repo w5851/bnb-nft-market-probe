@@ -144,11 +144,26 @@ def normalise(order: dict, rpc: cl.BnbRpc, ctx: dict) -> dict | None:
 
 
 def fetch_events(blocks: int, chunk: int = 10000, timeout: float = 30.0):
+    """Returns (head, rpc, rows, source, effective_blocks).
+
+    The window is clamped to what the endpoint still serves: some providers answer old
+    `eth_getLogs` ranges with `[]` instead of an error (publicnode keeps ~50k blocks),
+    so an unclamped 100k request would silently scan half of what was asked for.
+    """
     head = cl.BnbRpc(None, timeout=15.0).block_number()
-    floor = max(0, head - blocks + 1)
     last_error = ""
     for url in LOG_RPCS:
         rpc = cl.BnbRpc([url], timeout=timeout)
+        retention = cl.log_retention_blocks(rpc, head)
+        effective = blocks
+        if retention and blocks > retention:
+            effective = retention
+            print(
+                f"note: {url} keeps only ~{retention:,} blocks of logs "
+                f"(~{retention * 0.45 / 3600:.1f}h); window {blocks:,} -> {effective:,}",
+                flush=True,
+            )
+        floor = max(0, head - effective + 1)
         rows = []
         cursor = head
         ok = True
@@ -180,8 +195,8 @@ def fetch_events(blocks: int, chunk: int = 10000, timeout: float = 30.0):
                         rows.append(item)
             cursor = start - 1
         if ok:
-            return head, rpc, rows, url
-    return None, None, [], last_error
+            return head, rpc, rows, url, effective
+    return None, None, [], last_error, 0
 
 
 def merge_trades(rows: list[dict]) -> list[dict]:
@@ -205,7 +220,7 @@ def main() -> int:
     ap.add_argument("--json-out", default="")
     args = ap.parse_args()
 
-    head, rpc, rows, source = fetch_events(args.blocks, args.chunk)
+    head, rpc, rows, source, effective = fetch_events(args.blocks, args.chunk)
     if head is None:
         print("no sales data:", source)
         return 3
@@ -222,7 +237,7 @@ def main() -> int:
         except Exception:  # noqa: BLE001
             span = ""
 
-    print(f"head={head} window={args.blocks} blocks events={len(rows)} trades={len(trades)} source={source}{span}")
+    print(f"head={head} window={effective} blocks events={len(rows)} trades={len(trades)} source={source}{span}")
 
     if args.contract:
         target = args.contract.lower()

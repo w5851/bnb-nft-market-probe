@@ -423,6 +423,59 @@ class BnbRpc:
 
 
 # ---------------------------------------------------------------------------
+# Log retention probe
+# ---------------------------------------------------------------------------
+USDT_BSC = "0x55d398326f99059fF775485246999027B3197955"
+TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+
+
+def log_retention_blocks(rpc: "BnbRpc", head: int, low: int = 12_000, high: int = 400_000, span: int = 10) -> int:
+    """How many blocks back `rpc` can still serve `eth_getLogs` for.
+
+    Some public BSC endpoints answer old `eth_getLogs` ranges with an empty list instead
+    of an error: no warning, just `[]`. A 300,000-block request then silently becomes a
+    ~50,000 block scan, and every total computed from it is wrong without looking wrong.
+
+    Probing a high-traffic token makes the limit measurable, because USDT transfers are
+    never idle for ten consecutive BSC blocks. Measured 2026-11-04: depth 50,000 returned
+    ~1,500 logs per 50 blocks, depth 52,500 returned 0 - i.e. ~6.2 h of history.
+
+    Returns the oldest depth (in blocks below `head`) that still returns logs, or 0 if
+    even `low` is already beyond retention.
+    """
+
+    def alive(depth: int) -> bool:
+        end = head - depth
+        start = end - span + 1
+        try:
+            logs = rpc.call(
+                "eth_getLogs",
+                [
+                    {
+                        "address": USDT_BSC,
+                        "fromBlock": hex(start),
+                        "toBlock": hex(end),
+                        "topics": [TRANSFER_TOPIC],
+                    }
+                ],
+            )
+        except RpcError:
+            return False
+        return bool(logs)
+
+    if not alive(low):
+        return 0
+    lo, hi = low, high
+    while hi - lo > 2_000:
+        mid = (lo + hi) // 2
+        if alive(mid):
+            lo = mid
+        else:
+            hi = mid
+    return lo
+
+
+# ---------------------------------------------------------------------------
 # Formatting helpers
 # ---------------------------------------------------------------------------
 def wei_to_bnb(wei: int) -> Decimal:

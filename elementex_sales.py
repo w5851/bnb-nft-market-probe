@@ -28,14 +28,18 @@ side we care about when asking "could we mint and immediately sell".
 
 Usage
 -----
-    python elementex_sales.py --blocks 50000
-    python elementex_sales.py --blocks 50000 --contract 0x4addbd...
-    python elementex_sales.py --blocks 200000 --json-out elementex.json
+    python elementex_sales.py --blocks 45000
+    python elementex_sales.py --blocks 45000 --contract 0x4addbd...
+    python elementex_sales.py --blocks 45000 --json-out elementex.json
 
-Measured on 2026-11-04: a 50,000-block window (~6.25 h at 0.45 s/block) returned
-89 fills across 10 collections in about 6 seconds. The same window on Seaport
+Measured on 2026-11-04: a ~50,000-block window (~6.2 h at 0.45 s/block) returned 89
+fills across 10 collections in about 6 seconds. The same chain time on Seaport
 returned 1-2 trades, which is why `market_sales.py` on its own reads as "nobody
 trades on BSC".
+
+Window caveat: the free public endpoints only serve roughly the last 50,000 blocks of
+logs (publicnode answers older ranges with `[]`, not an error). `fetch_fills` measures
+that limit and clamps the window, so `window=` in the output is what was actually read.
 """
 
 from __future__ import annotations
@@ -169,12 +173,28 @@ def decode_fill(log: dict, side: str, assets: Assets) -> dict | None:
 
 
 def fetch_fills(blocks: int, chunk: int = 10000, timeout: float = 40.0):
+    """Returns (head, rpc, rows, source, effective_blocks).
+
+    `effective_blocks` is clamped to what the endpoint can actually still serve: some
+    providers answer old `eth_getLogs` ranges with an empty list instead of an error, so
+    a 300,000-block request would silently become ~50,000 blocks and every total would
+    be wrong. `cl.log_retention_blocks` measures the real limit first.
+    """
     head = cl.BnbRpc(None, timeout=20.0).block_number()
-    floor = max(0, head - blocks + 1)
     last_error = ""
     for url in LOG_RPCS:
         rpc = cl.BnbRpc([url], timeout=timeout)
         assets = Assets(rpc)
+        retention = cl.log_retention_blocks(rpc, head)
+        effective = blocks
+        if retention and blocks > retention:
+            effective = retention
+            print(
+                f"note: {url} keeps only ~{retention:,} blocks of logs "
+                f"(~{retention * 0.45 / 3600:.1f}h); window {blocks:,} -> {effective:,}",
+                flush=True,
+            )
+        floor = max(0, head - effective + 1)
         rows: list[dict] = []
         cursor = head
         ok = True
@@ -204,8 +224,8 @@ def fetch_fills(blocks: int, chunk: int = 10000, timeout: float = 40.0):
                     rows.append(row)
             cursor = start - 1
         if ok:
-            return head, rpc, rows, url
-    return None, None, [], last_error
+            return head, rpc, rows, url, effective
+    return None, None, [], last_error, 0
 
 
 def main() -> int:
@@ -218,7 +238,7 @@ def main() -> int:
     args = ap.parse_args()
 
     started = time.time()
-    head, rpc, rows, source = fetch_fills(args.blocks, args.chunk)
+    head, rpc, rows, source, effective = fetch_fills(args.blocks, args.chunk)
     if head is None:
         print(f"all RPCs failed: {rows if rows else ''}{source}", file=sys.stderr)
         return 1
@@ -232,7 +252,7 @@ def main() -> int:
         blocks_span = max(r["block"] for r in rows) - min(r["block"] for r in rows)
         span = f", trades span {blocks_span * 0.45 / 3600:.2f}h"
     print(
-        f"head={head} window={args.blocks} blocks fills={len(rows)} "
+        f"head={head} window={effective} blocks fills={len(rows)} "
         f"source={source}{span} ({time.time() - started:.0f}s)"
     )
 
@@ -249,7 +269,7 @@ def main() -> int:
     print(f"\n{'collection':<44}{'fills':>6}{'sell':>6}{'bid':>5}{'best':>14}  paid total")
     ranked = sorted(agg.items(), key=lambda kv: kv[1]["trades"], reverse=True)[: args.top]
     for contract, entry in ranked:
-        money = " + ".join(f"{v:,.6g} {k}" for k, v in entry["paid"].items()) or "-"
+        money = " + ".join(f"{v:,.6g} {k}" for k, v in sorted(entry["paid"].items())) or "-"
         best = f"{entry['best'][0]:,.6g} {entry['best'][1]}".strip()
         print(f"{contract:<44}{entry['trades']:>6}{entry['sell']:>6}{entry['buy']:>5}{best:>14}  {money}")
 

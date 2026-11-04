@@ -8,7 +8,7 @@ on:
       blocks:
         description: "lookback window in blocks (Element exchange)"
         required: false
-        default: "50000"
+        default: "45000"
 
 permissions:
   contents: read
@@ -26,7 +26,7 @@ jobs:
       # Element's exchange is where BSC NFT trades actually clear.
       - name: Decode Element exchange fills
         run: |
-          python elementex_sales.py --blocks "${{ inputs.blocks || '50000' }}" --top 20 | tee elementex.txt
+          python elementex_sales.py --blocks "${{ inputs.blocks || '45000' }}" --top 20 | tee elementex.txt
 
       # Same chain time on Seaport is 1-2 trades; kept for comparison, never blocks the job.
       - name: Decode Seaport settlements (comparison)

@@ -32,9 +32,9 @@ python mint_watch.py --cycles 1 --max-blocks-per-cycle 600
 python market_probe.py --contract 0xab6b18c626daadd1ff7cc45f402141153a5a9759 --token-id 1835
 
 # 3) what did people actually pay?
-python elementex_sales.py --blocks 50000          # Element exchange: the venue that actually clears
-python elementex_sales.py --blocks 50000 --contract 0x4addbd796edf3d4d186fb5aa314caff3f98984a6
-python market_sales.py --blocks 100000            # Seaport: much lower volume on BSC
+python elementex_sales.py --blocks 45000          # Element exchange: the venue that actually clears
+python elementex_sales.py --blocks 45000 --contract 0x4addbd796edf3d4d186fb5aa314caff3f98984a6
+python market_sales.py --blocks 45000             # Seaport: much lower volume on BSC
 ```
 
 Python 3.10+, standard library only.
@@ -50,6 +50,8 @@ Python 3.10+, standard library only.
 ElementEx emits 0x-Protocol-v4 style events. `ERC721SellOrderFilled` means a seller's ask was taken; `ERC721BuyOrderFilled` means a resting **bid** was taken — that second one is the only public evidence of executable demand when you have no order-book API. The decoder reads the nine-word head (`orderHash`, `maker`, `taker`, `nonce`, `erc20Token`, `erc20TokenAmount`, fees offset, `erc721Token`, `erc721TokenId`) plus the dynamic royalty/fee array. Native BNB is encoded as `0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` **or** the zero address, and `symbol()`/`decimals()` on those returns empty bytes — reading that as `decimals = 0` inflates every BNB price by 1e18.
 
 Seaport processing still applies: `OrderFulfilled(orderHash, offerer, zone, recipient, offer[], consideration[])` is decoded in both directions (NFT in `offer` for sell-side, in `consideration` for buy-side), every payment item is summed with its token `decimals()`, and the two events of one settlement are merged so a trade is not double counted. Unknown assets are reported as `unknown`, never as "free".
+
+**How far back can we see?** Not far. Free public endpoints keep only ~50,000 blocks of logs (~6.2 h) and answer anything older with an **empty list rather than an error** — a 300,000-block request silently degrades into a 50,000-block one. `chainlib.log_retention_blocks()` measures the real limit by probing USDT `Transfer` events (never idle for ten consecutive blocks) and both decoders clamp to it, printing `window=` for what was actually read. Anything longer needs an endpoint with deep log history, or forward collection by a running scanner.
 
 ## What this repository deliberately does not do
 
