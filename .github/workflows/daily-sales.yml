@@ -1,0 +1,45 @@
+name: daily-sales
+
+on:
+  schedule:
+    - cron: "17 2 * * *" # 10:17 Asia/Shanghai
+  workflow_dispatch:
+    inputs:
+      blocks:
+        description: "lookback window in blocks"
+        required: false
+        default: "100000"
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Decode Seaport sales
+        run: |
+          python market_sales.py --blocks "${{ inputs.blocks || '100000' }}" --top 20 | tee sales.txt
+
+      - name: Publish job summary
+        run: |
+          {
+            echo "## BNB Chain NFT sales — $(date -u +'%Y-%m-%d %H:%M UTC')"
+            echo ""
+            echo '```'
+            cat sales.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sales-report
+          path: sales.txt
+          retention-days: 30

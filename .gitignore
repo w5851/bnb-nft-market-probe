@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# local run artifacts
+*-state.json
+mint-watch.jsonl
+*.local.json
+.env

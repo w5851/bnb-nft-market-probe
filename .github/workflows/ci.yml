@@ -1,0 +1,19 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Offline crypto / ABI self-test
+        run: python chainlib.py --selftest
+      - name: Byte-compile the tools
+        run: python -m py_compile market_sales.py market_probe.py mint_watch.py
