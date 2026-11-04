@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       blocks:
-        description: "lookback window in blocks"
+        description: "lookback window in blocks (Element exchange)"
         required: false
-        default: "100000"
+        default: "50000"
 
 permissions:
   contents: read
@@ -23,23 +23,40 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Decode Seaport sales
+      # Element's exchange is where BSC NFT trades actually clear.
+      - name: Decode Element exchange fills
         run: |
-          python market_sales.py --blocks "${{ inputs.blocks || '100000' }}" --top 20 | tee sales.txt
+          python elementex_sales.py --blocks "${{ inputs.blocks || '50000' }}" --top 20 | tee elementex.txt
+
+      # Same chain time on Seaport is 1-2 trades; kept for comparison, never blocks the job.
+      - name: Decode Seaport settlements (comparison)
+        continue-on-error: true
+        run: |
+          python market_sales.py --blocks 100000 --top 10 | tee seaport.txt
 
       - name: Publish job summary
         run: |
           {
             echo "## BNB Chain NFT sales — $(date -u +'%Y-%m-%d %H:%M UTC')"
             echo ""
+            echo "### Element exchange"
             echo '```'
-            cat sales.txt
+            cat elementex.txt
             echo '```'
+            if [ -s seaport.txt ]; then
+              echo "### Seaport (same chain, much lower volume)"
+              echo '```'
+              cat seaport.txt
+              echo '```'
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload report
         uses: actions/upload-artifact@v4
         with:
           name: sales-report
-          path: sales.txt
+          path: |
+            elementex.txt
+            seaport.txt
+          if-no-files-found: warn
           retention-days: 30

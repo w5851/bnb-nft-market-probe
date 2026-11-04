@@ -6,7 +6,7 @@ It answers three questions with public RPC data only:
 
 1. **What is being minted right now?** — contiguous block scanning with a persistent cursor (`mint_watch.py`).
 2. **Can this NFT be sold at all?** — transfer simulation, royalty, mint-open state, marketplace indexing (`market_probe.py`).
-3. **Did anyone actually pay for it?** — Seaport `OrderFulfilled` decoding into collection / token / price / buyer / seller (`market_sales.py`).
+3. **Did anyone actually pay for it?** — settlement-event decoding into collection / token / price / buyer / seller, for both venues that matter on BSC: Element's own exchange (`elementex_sales.py`) and Seaport (`market_sales.py`).
 
 No API keys are required, nothing is signed, and nothing is broadcast.
 
@@ -15,6 +15,7 @@ No API keys are required, nothing is signed, and nothing is broadcast.
 | File | What it does | Network calls |
 | --- | --- | --- |
 | `chainlib.py` | Minimal JSON-RPC client + keccak/ABI helpers (stdlib only) | `eth_*` read calls |
+| `elementex_sales.py` | Decodes Element's exchange (`0xb3e3…ae1`): `ERC721SellOrderFilled` and `ERC721BuyOrderFilled`, with royalty/fee array and native-BNB handling | `eth_getLogs`, `eth_call` |
 | `market_sales.py` | Decodes Seaport `OrderFulfilled` (both directions, multi-asset, `decimals()` aware) into trades | `eth_getLogs`, `eth_call` |
 | `market_probe.py` | Per-token report: standard, supply, transferability, royalty, free-mint state, secondary transfers, marketplace indexing | `eth_call`, `eth_getLogs`, one HTTPS page |
 | `mint_watch.py` | Cursor-based scanner: contiguous block coverage, failure backfill, per-contract inspection | `eth_getLogs`, `eth_call`, one HTTPS page per contract |
@@ -31,8 +32,9 @@ python mint_watch.py --cycles 1 --max-blocks-per-cycle 600
 python market_probe.py --contract 0xab6b18c626daadd1ff7cc45f402141153a5a9759 --token-id 1835
 
 # 3) what did people actually pay?
-python market_sales.py --blocks 100000
-python market_sales.py --blocks 100000 --contract 0x3148850ce59904cda99086a8248c2300416edc46
+python elementex_sales.py --blocks 50000          # Element exchange: the venue that actually clears
+python elementex_sales.py --blocks 50000 --contract 0x4addbd796edf3d4d186fb5aa314caff3f98984a6
+python market_sales.py --blocks 100000            # Seaport: much lower volume on BSC
 ```
 
 Python 3.10+, standard library only.
@@ -43,7 +45,11 @@ Python 3.10+, standard library only.
 
 **Market indexing.** Element renders token metadata server-side. An indexed token returns a real `<title>` (`"#2605 - Un-Written | Element"`); an unknown one returns `"- | Element"`. That single HTTPS request is a cheap "is this collection visible to buyers" signal.
 
-**Real sales.** Seaport emits `OrderFulfilled(orderHash, offerer, zone, recipient, offer[], consideration[])`. The decoder extracts the NFT side (either `offer` for sell-side events or `consideration` for buy-side events), sums every payment item with its token `decimals()`, and merges the events of one settlement so a trade is not double counted. Unknown assets are reported as `unknown`, never as "free".
+**Real sales — pick the right venue.** On BSC, Seaport is *not* where the market is. Over the same chain time, Element's exchange (`0xb3e3DfCb2d9f3DdE16d78B9e6EB3538Eb32B5ae1`) produced **89 fills in 50,000 blocks (~6.25 h)**, while Seaport produced **1–2 trades per 100,000 blocks**. Anyone measuring BSC NFT demand from Seaport alone will conclude "nobody trades", which is wrong.
+
+ElementEx emits 0x-Protocol-v4 style events. `ERC721SellOrderFilled` means a seller's ask was taken; `ERC721BuyOrderFilled` means a resting **bid** was taken — that second one is the only public evidence of executable demand when you have no order-book API. The decoder reads the nine-word head (`orderHash`, `maker`, `taker`, `nonce`, `erc20Token`, `erc20TokenAmount`, fees offset, `erc721Token`, `erc721TokenId`) plus the dynamic royalty/fee array. Native BNB is encoded as `0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee` **or** the zero address, and `symbol()`/`decimals()` on those returns empty bytes — reading that as `decimals = 0` inflates every BNB price by 1e18.
+
+Seaport processing still applies: `OrderFulfilled(orderHash, offerer, zone, recipient, offer[], consideration[])` is decoded in both directions (NFT in `offer` for sell-side, in `consideration` for buy-side), every payment item is summed with its token `decimals()`, and the two events of one settlement are merged so a trade is not double counted. Unknown assets are reported as `unknown`, never as "free".
 
 ## What this repository deliberately does not do
 
@@ -59,7 +65,8 @@ An Element API key would let this toolkit read BNB Chain collection/item order d
 
 ## Limitations
 
-- Seaport is one settlement path; Element's own settlement and other marketplaces are separate contracts.
+- Venue coverage is limited to Element's exchange and Seaport; other BSC marketplaces settle on their own contracts and are not decoded here.
+- `ERC721BuyOrderFilled` proves a bid *was* taken; it does not reveal bids that are still resting. For live order books an API key is still required.
 - `market_probe.py` needs a wallet address to test transferability from that wallet; without one it reports on-chain facts only.
 - Block time on BSC is ~0.45 s, so block windows are converted to time using timestamps, not a fixed constant.
 - Public RPC endpoints rate-limit log queries; failures are queued and retried, but very wide backfills take time.
