@@ -17,6 +17,7 @@ No API keys are required, nothing is signed, and nothing is broadcast.
 | `chainlib.py` | Minimal JSON-RPC client + keccak/ABI helpers (stdlib only) | `eth_*` read calls |
 | `elementex_sales.py` | Decodes Element's exchange (`0xb3e3…ae1`): `ERC721SellOrderFilled` and `ERC721BuyOrderFilled`, with royalty/fee array and native-BNB handling | `eth_getLogs`, `eth_call` |
 | `bid_depth.py` | Bid-side depth from history: per collection, how many bids were taken, by how many wallets, at what price (USD-normalised) — the closest free substitute for an order book | `eth_getLogs`, `eth_call` |
+| `build_dataset.py` | Folds a sample into the committed fill dataset (`data/`), deduping overlapping windows | none (local files) |
 | `market_sales.py` | Decodes Seaport `OrderFulfilled` (both directions, multi-asset, `decimals()` aware) into trades | `eth_getLogs`, `eth_call` |
 | `market_probe.py` | Per-token report: standard, supply, transferability, royalty, free-mint state, secondary transfers, marketplace indexing | `eth_call`, `eth_getLogs`, one HTTPS page |
 | `mint_watch.py` | Cursor-based scanner: contiguous block coverage, failure backfill, per-contract inspection | `eth_getLogs`, `eth_call`, one HTTPS page per contract |
@@ -42,6 +43,12 @@ python bid_depth.py --blocks 45000
 ```
 
 Python 3.10+, standard library only.
+
+## Dataset
+
+`data/elementex/fills.jsonl` is a growing record of executed BNB Chain NFT fills, decoded from the Element exchange. A GitHub Action samples every five hours — not daily — because a public RPC only serves ~50k blocks of logs back (~5.6 h), so a daily job would leave a 19-hour hole; the overlapping windows are deduped by `(tx, order_hash, side)`.
+
+The real limit is not the sampling rate but the retention of free RPC endpoints, so the honest description is "as much history as can be reconstructed going forward". Schema, caveats and what the data is *not*: [`data/README.md`](data/README.md).
 
 ## How the pieces work
 

@@ -1,8 +1,12 @@
-name: daily-sales
+name: sales-dataset
 
+# Element's exchange is where BSC NFT trades actually clear, but a public RPC only
+# serves ~50k blocks of logs back (~5.6h). One run a day would leave a 19h hole, so
+# this samples every 5 hours: the windows overlap slightly and build_dataset.py
+# dedupes them into one growing file. That file is the point of the job.
 on:
   schedule:
-    - cron: "17 2 * * *" # 10:17 Asia/Shanghai
+    - cron: "17 */5 * * *"
   workflow_dispatch:
     inputs:
       blocks:
@@ -11,7 +15,11 @@ on:
         default: "45000"
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: sales-dataset
+  cancel-in-progress: false
 
 jobs:
   report:
@@ -23,10 +31,23 @@ jobs:
         with:
           python-version: "3.12"
 
-      # Element's exchange is where BSC NFT trades actually clear.
       - name: Decode Element exchange fills
         run: |
-          python elementex_sales.py --blocks "${{ inputs.blocks || '45000' }}" --top 20 | tee elementex.txt
+          python elementex_sales.py --blocks "${{ inputs.blocks || '45000' }}" --top 20 \
+            --json-out elementex.json | tee elementex.txt
+
+      - name: Fold into the dataset
+        run: |
+          python build_dataset.py --input elementex.json | tee dataset.txt
+          {
+            echo "## BNB Chain NFT fills — $(date -u +'%Y-%m-%d %H:%M UTC')"
+            echo ""
+            echo '```'
+            cat elementex.txt
+            echo ""
+            cat dataset.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # Same chain time on Seaport is 1-2 trades; kept for comparison, never blocks the job.
       - name: Decode Seaport settlements (comparison)
@@ -34,22 +55,18 @@ jobs:
         run: |
           python market_sales.py --blocks 100000 --top 10 | tee seaport.txt
 
-      - name: Publish job summary
+      - name: Commit the new fills
         run: |
-          {
-            echo "## BNB Chain NFT sales — $(date -u +'%Y-%m-%d %H:%M UTC')"
-            echo ""
-            echo "### Element exchange"
-            echo '```'
-            cat elementex.txt
-            echo '```'
-            if [ -s seaport.txt ]; then
-              echo "### Seaport (same chain, much lower volume)"
-              echo '```'
-              cat seaport.txt
-              echo '```'
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then
+            echo "no new fills this window"
+            exit 0
+          fi
+          git commit -m "dataset: $(date -u +'%Y-%m-%dT%H:%MZ') Element exchange fills"
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -57,6 +74,8 @@ jobs:
           name: sales-report
           path: |
             elementex.txt
+            elementex.json
+            dataset.txt
             seaport.txt
           if-no-files-found: warn
           retention-days: 30

@@ -1,0 +1,18 @@
+{
+  "updated_at": "2026-11-05T05:14:50Z",
+  "total_fills": 3,
+  "block_range": {
+    "from": 131751900,
+    "to": 131757719
+  },
+  "by_observed_day": {
+    "2026-11-05": 3
+  },
+  "by_collection": {
+    "0x111738f3937547bf9fb2ca36b0e9ef0fcdd18d89": 1,
+    "0x74164ed868bfad68eaaffa36f828019456d520da": 1,
+    "0xb777c52296f0d7d3c5cab7ae0c1aaac6b014b256": 1
+  },
+  "source": "Element exchange 0xb3e3DfCb2d9f3DdE16d78B9e6EB3538Eb32B5ae1 (0x-Protocol v4 fills)",
+  "note": "Samples, not a continuous record: each run reads whatever the public RPC still serves (~50k blocks)."
+}
