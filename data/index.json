@@ -1,17 +1,22 @@
 {
-  "updated_at": "2026-11-05T05:14:50Z",
-  "total_fills": 3,
+  "updated_at": "2026-11-05T05:18:28Z",
+  "total_fills": 24,
   "block_range": {
-    "from": 131751900,
+    "from": 131718646,
     "to": 131757719
   },
   "by_observed_day": {
-    "2026-11-05": 3
+    "2026-11-05": 24
   },
   "by_collection": {
+    "0xdf7952b35f24acf7fc0487d01c8d5690a60dba07": 10,
+    "0xc4059d2f9f6f86695896e68f3e73e1e6cc3791c8": 5,
+    "0xb081550d7b38f17bf93df8f20db82903c59d6f40": 3,
+    "0xb777c52296f0d7d3c5cab7ae0c1aaac6b014b256": 2,
+    "0xbc2d8b6f4c4e2803c5e842e6e8250b79ee442b78": 1,
+    "0xadc466855ebe8d1402c5f7e6706fccc3aedb44a0": 1,
     "0x111738f3937547bf9fb2ca36b0e9ef0fcdd18d89": 1,
-    "0x74164ed868bfad68eaaffa36f828019456d520da": 1,
-    "0xb777c52296f0d7d3c5cab7ae0c1aaac6b014b256": 1
+    "0x74164ed868bfad68eaaffa36f828019456d520da": 1
   },
   "source": "Element exchange 0xb3e3DfCb2d9f3DdE16d78B9e6EB3538Eb32B5ae1 (0x-Protocol v4 fills)",
   "note": "Samples, not a continuous record: each run reads whatever the public RPC still serves (~50k blocks)."
