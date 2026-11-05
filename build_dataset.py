@@ -108,10 +108,10 @@ def main() -> int:
         return 0
 
     fills_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(fills_path, "w", encoding="utf-8") as fh:
+    with open(fills_path, "w", encoding="utf-8", newline="\n") as fh:
         for row in rows:
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
-    (data_dir / "index.json").write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (data_dir / "index.json").write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"wrote {fills_path} and {data_dir / 'index.json'}")
     return 0
 
