@@ -49,7 +49,10 @@ def normalize(trade: dict, observed_at: str) -> dict:
 
 
 def key(row: dict) -> tuple:
-    return (row.get("tx"), row.get("order_hash"), row.get("side"))
+    # One order can settle several tokens in a single transaction (a collection-wide
+    # offer filled four token ids in one tx), so token_id belongs in the key --
+    # without it a batch fill collapses to one row.
+    return (row.get("tx"), row.get("order_hash"), row.get("side"), row.get("token_id"))
 
 
 def main() -> int:

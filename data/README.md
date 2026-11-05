@@ -17,7 +17,11 @@ Public BSC RPCs serve roughly the last **50,000 blocks** of `eth_getLogs`
 silent, which is exactly why so many "300k block" analyses are wrong. A once-a-day
 job would therefore leave a 19-hour hole. Running every 5 hours makes consecutive
 windows overlap slightly, and `build_dataset.py` dedupes by
-`(tx, order_hash, side)`, so coverage accumulates instead of repeating.
+`(tx, order_hash, side, token_id)`, so coverage accumulates instead of repeating.
+
+`token_id` has to be in that key: one order can settle several tokens in a single
+transaction. A collection-wide offer filled four token ids in one tx, so keying on
+just `(tx, order_hash)` collapsed 87 observed fills into 24 rows.
 
 Gaps are still possible: a failed or delayed run leaves a hole, and GitHub's
 scheduler is best-effort. `index.json` records `by_observed_day`, so a missing
@@ -29,7 +33,7 @@ day is visible rather than hidden.
 | --- | --- |
 | `block` | block the fill landed in |
 | `tx` | transaction hash |
-| `order_hash` | 0x-Protocol order hash — together with `tx` it identifies the fill |
+| `order_hash` | 0x-Protocol order hash — with `tx`, `side` and `token_id` it identifies the fill |
 | `side` | `sell` (a listing was taken) or `buy` (a resting offer was hit) |
 | `nft_contract` | ERC-721 contract |
 | `token_id` | token id |
@@ -63,3 +67,4 @@ python build_dataset.py --input sample.json
 
 `build_dataset.py` rewrites `fills.jsonl` sorted by block, so the file stays
 diff-friendly and stable across runs.
+
