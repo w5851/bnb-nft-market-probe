@@ -1,34 +1,36 @@
 {
-  "updated_at": "2026-11-07T06:10:22Z",
-  "total_fills": 262,
+  "updated_at": "2026-11-07T16:30:20Z",
+  "total_fills": 351,
   "block_range": {
     "from": 131718646,
-    "to": 132146701
+    "to": 132232685
   },
   "by_observed_day": {
     "2026-11-05": 139,
     "2026-11-06": 56,
-    "2026-11-07": 67
+    "2026-11-07": 156
   },
   "by_collection": {
     "0xdf7952b35f24acf7fc0487d01c8d5690a60dba07": 73,
+    "0xbc2d8b6f4c4e2803c5e842e6e8250b79ee442b78": 49,
     "0xdef69304793ed90a3b788182c0a7201e2f0aab93": 28,
     "0xafc6bca0e191e396306343213b04ff9a8d717263": 25,
-    "0xc4059d2f9f6f86695896e68f3e73e1e6cc3791c8": 20,
-    "0x74164ed868bfad68eaaffa36f828019456d520da": 16,
+    "0xc4059d2f9f6f86695896e68f3e73e1e6cc3791c8": 22,
+    "0x48b5e5573e76caaa41a893496de6c857720e6b40": 22,
+    "0x74164ed868bfad68eaaffa36f828019456d520da": 17,
     "0xb777c52296f0d7d3c5cab7ae0c1aaac6b014b256": 13,
+    "0x157d860e30b6c6d4dc0abe3bd6e66e659a9d524f": 13,
     "0xf11e9405b23ca0f53e6135162a85545d780a3737": 12,
     "0x19f125da1985033f102ca7746cbd1f6f512cfacd": 11,
     "0x68869d4edc15ec2fba0eacfe1486caf9d0c37572": 10,
     "0x2af749593978cb79ed11b9959cd82fd128ba4f8d": 8,
     "0x4addbd796edf3d4d186fb5aa314caff3f98984a6": 8,
     "0x86956bc830eb62110820ae79164bef61c7e31936": 4,
+    "0x3048e07c057ef694d4e431154dafad473d1aa18b": 4,
     "0xb081550d7b38f17bf93df8f20db82903c59d6f40": 3,
     "0x55f4c8aba71a1e923edc303eb4feff14608cc226": 3,
     "0x2ed9e0a6992ba22b48c2fc2def6bb2365301a0d0": 3,
     "0xdaf379e1f0a51cb9faaaeff243f26b33ca8bdded": 3,
-    "0x3048e07c057ef694d4e431154dafad473d1aa18b": 3,
-    "0xbc2d8b6f4c4e2803c5e842e6e8250b79ee442b78": 2,
     "0xadc466855ebe8d1402c5f7e6706fccc3aedb44a0": 2,
     "0x9578f8a40228f44f31a9e4bc179e1112f7fa4157": 2,
     "0x43bde1047a25274c377800da13eaaa506f29618b": 2,
@@ -40,7 +42,10 @@
     "0xd12c42935f06b37337588b9169ba1593b534eb86": 1,
     "0x213a879d11a85b54483cea2cdec5d9026958add3": 1,
     "0x4515787b43d930ce6af3b446fcb19c77513da281": 1,
-    "0x85294fd5cffb964e318302b0c03c8f4ae7bf2fe3": 1
+    "0x85294fd5cffb964e318302b0c03c8f4ae7bf2fe3": 1,
+    "0x6d862c8b847323961fcd349fffbee0133f6b929a": 1,
+    "0xab6b18c626daadd1ff7cc45f402141153a5a9759": 1,
+    "0xce19d6a5ff15e088d4bf23614242927139084895": 1
   },
   "source": "Element exchange 0xb3e3DfCb2d9f3DdE16d78B9e6EB3538Eb32B5ae1 (0x-Protocol v4 fills)",
   "note": "Samples, not a continuous record: each run reads whatever the public RPC still serves (~50k blocks)."
