@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-11-08T16:43:49Z",
-  "total_fills": 380,
+  "updated_at": "2026-11-08T23:46:59Z",
+  "total_fills": 382,
   "block_range": {
     "from": 131718646,
-    "to": 132397572
+    "to": 132444771
   },
   "by_observed_day": {
     "2026-11-05": 139,
     "2026-11-06": 56,
     "2026-11-07": 168,
-    "2026-11-08": 17
+    "2026-11-08": 19
   },
   "by_collection": {
     "0xdf7952b35f24acf7fc0487d01c8d5690a60dba07": 73,
@@ -18,11 +18,11 @@
     "0xafc6bca0e191e396306343213b04ff9a8d717263": 25,
     "0xc4059d2f9f6f86695896e68f3e73e1e6cc3791c8": 24,
     "0x48b5e5573e76caaa41a893496de6c857720e6b40": 22,
-    "0x74164ed868bfad68eaaffa36f828019456d520da": 17,
+    "0x74164ed868bfad68eaaffa36f828019456d520da": 18,
     "0x157d860e30b6c6d4dc0abe3bd6e66e659a9d524f": 14,
     "0xb777c52296f0d7d3c5cab7ae0c1aaac6b014b256": 13,
+    "0x68869d4edc15ec2fba0eacfe1486caf9d0c37572": 12,
     "0xf11e9405b23ca0f53e6135162a85545d780a3737": 12,
-    "0x68869d4edc15ec2fba0eacfe1486caf9d0c37572": 11,
     "0x19f125da1985033f102ca7746cbd1f6f512cfacd": 11,
     "0x2af749593978cb79ed11b9959cd82fd128ba4f8d": 8,
     "0x4addbd796edf3d4d186fb5aa314caff3f98984a6": 8,
