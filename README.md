@@ -46,7 +46,7 @@ Python 3.10+, standard library only.
 
 ## Dataset
 
-`data/elementex/fills.jsonl` is a growing record of executed BNB Chain NFT fills, decoded from the Element exchange. A GitHub Action samples every five hours — not daily — because a public RPC only serves ~50k blocks of logs back (~5.6 h), so a daily job would leave a 19-hour hole; the overlapping windows are deduped by `(tx, order_hash, side)`.
+`data/elementex/fills.jsonl` is a growing record of executed BNB Chain NFT fills, decoded from the Element exchange. A GitHub Action samples every five hours — not daily — because a public RPC only serves ~50k blocks of logs back (~5.6 h), so a daily job would leave a 19-hour hole. GitHub's scheduler often runs it 8–12 hours apart in practice, so treat the file as repeated samples rather than a continuous record. Overlapping windows are deduped by `(tx, order_hash, side, token_id)` — the token id is part of the key because one batch fill can settle several token ids in a single transaction.
 
 The real limit is not the sampling rate but the retention of free RPC endpoints, so the honest description is "as much history as can be reconstructed going forward". Schema, caveats and what the data is *not*: [`data/README.md`](data/README.md).
 
