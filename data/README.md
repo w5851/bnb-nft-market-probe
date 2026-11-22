@@ -1,10 +1,10 @@
 # Dataset — BNB Chain NFT fills
 
-A GitHub Action samples the Element exchange nominally every five hours —
-GitHub's scheduler in practice delivers 8–12 hours apart —
+A GitHub Action samples the Element exchange
 (`0xb3e3DfCb2d9f3DdE16d78B9e6EB3538Eb32B5ae1`, which emits 0x-Protocol v4 fills),
-decodes the trades, and appends whatever is new. This is the part of the
-repository that is meant to be *used*, not just read.
+decodes the trades, and appends whatever is new. The job is scheduled every five
+hours; GitHub's scheduler in practice delivers 8–12 hours apart. This is the part
+of the repository that is meant to be *used*, not just read.
 
 | File | What it holds |
 | --- | --- |
