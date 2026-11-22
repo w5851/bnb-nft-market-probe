@@ -1,6 +1,7 @@
 # Dataset — BNB Chain NFT fills
 
-Every five hours a GitHub Action samples the Element exchange
+A GitHub Action samples the Element exchange nominally every five hours —
+GitHub's scheduler in practice delivers 8–12 hours apart —
 (`0xb3e3DfCb2d9f3DdE16d78B9e6EB3538Eb32B5ae1`, which emits 0x-Protocol v4 fills),
 decodes the trades, and appends whatever is new. This is the part of the
 repository that is meant to be *used*, not just read.
@@ -15,9 +16,12 @@ repository that is meant to be *used*, not just read.
 Public BSC RPCs serve roughly the last **50,000 blocks** of `eth_getLogs`
 (≈5.6 h) and then return an *empty array* instead of an error — the failure is
 silent, which is exactly why so many "300k block" analyses are wrong. A once-a-day
-job would therefore leave a 19-hour hole. Running every 5 hours makes consecutive
-windows overlap slightly, and `build_dataset.py` dedupes by
-`(tx, order_hash, side, token_id)`, so coverage accumulates instead of repeating.
+job would therefore leave a 19-hour hole. The job is scheduled every 5 hours so
+consecutive windows *would* overlap slightly; because GitHub's scheduler often
+runs it 8–12 hours apart, treat the file as repeated samples with visible gaps
+rather than a continuous record. `build_dataset.py` dedupes by
+`(tx, order_hash, side, token_id)`, so windows that do overlap add rows instead
+of repeating them.
 
 `token_id` has to be in that key: one order can settle several tokens in a single
 transaction. A collection-wide offer filled four token ids in one tx, so keying on
