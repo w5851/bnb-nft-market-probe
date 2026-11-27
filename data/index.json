@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-11-26T15:26:11Z",
-  "total_fills": 948,
+  "updated_at": "2026-11-27T02:55:32Z",
+  "total_fills": 959,
   "block_range": {
     "from": 131718646,
-    "to": 135869962
+    "to": 135961796
   },
   "by_observed_day": {
     "2026-11-05": 139,
@@ -27,10 +27,11 @@
     "2026-11-23": 18,
     "2026-11-24": 18,
     "2026-11-25": 23,
-    "2026-11-26": 22
+    "2026-11-26": 22,
+    "2026-11-27": 11
   },
   "by_collection": {
-    "0xadc466855ebe8d1402c5f7e6706fccc3aedb44a0": 114,
+    "0xadc466855ebe8d1402c5f7e6706fccc3aedb44a0": 115,
     "0x43bde1047a25274c377800da13eaaa506f29618b": 76,
     "0xdf7952b35f24acf7fc0487d01c8d5690a60dba07": 73,
     "0xe6f772346d9fc44942d6cbc92682d497d5b86665": 55,
@@ -38,9 +39,9 @@
     "0xbc2d8b6f4c4e2803c5e842e6e8250b79ee442b78": 50,
     "0x051e3c6ee112478e302ed79736ec94d69f47a7ca": 49,
     "0x74164ed868bfad68eaaffa36f828019456d520da": 42,
+    "0x19ed0aa07929d205967c4b7d1b8e57b695e9f80b": 40,
     "0x5101e55fb32b1e55ccfff8307cc3f54baf28ed42": 34,
     "0xc38c95899cd21522ef5db37cd6be4cb422cef58a": 33,
-    "0x19ed0aa07929d205967c4b7d1b8e57b695e9f80b": 31,
     "0xdef69304793ed90a3b788182c0a7201e2f0aab93": 29,
     "0xc4059d2f9f6f86695896e68f3e73e1e6cc3791c8": 26,
     "0xafc6bca0e191e396306343213b04ff9a8d717263": 25,
@@ -87,7 +88,8 @@
     "0x7cdcdbc9278e5523b62ecb752721c2e5be78334d": 1,
     "0xf068cc171fb3c35ccd39ac5fbc03b33cf954dcfb": 1,
     "0xe66843372f9147dd0f28706c9b4b0c78078be06b": 1,
-    "0x3aeda314ec05bc22e3c26a543e16df2b8cc8fe69": 1
+    "0x3aeda314ec05bc22e3c26a543e16df2b8cc8fe69": 1,
+    "0x09ca48306b00213764b5819dc8a9f1c90fb897f3": 1
   },
   "source": "Element exchange 0xb3e3DfCb2d9f3DdE16d78B9e6EB3538Eb32B5ae1 (0x-Protocol v4 fills)",
   "note": "Samples, not a continuous record: each run reads whatever the public RPC still serves (~50k blocks)."
