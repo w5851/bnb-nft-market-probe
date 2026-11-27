@@ -1,9 +1,9 @@
 {
-  "updated_at": "2026-11-27T02:55:32Z",
-  "total_fills": 959,
+  "updated_at": "2026-11-27T15:13:48Z",
+  "total_fills": 984,
   "block_range": {
     "from": 131718646,
-    "to": 135961796
+    "to": 136058810
   },
   "by_observed_day": {
     "2026-11-05": 139,
@@ -28,16 +28,16 @@
     "2026-11-24": 18,
     "2026-11-25": 23,
     "2026-11-26": 22,
-    "2026-11-27": 11
+    "2026-11-27": 36
   },
   "by_collection": {
-    "0xadc466855ebe8d1402c5f7e6706fccc3aedb44a0": 115,
+    "0xadc466855ebe8d1402c5f7e6706fccc3aedb44a0": 123,
     "0x43bde1047a25274c377800da13eaaa506f29618b": 76,
     "0xdf7952b35f24acf7fc0487d01c8d5690a60dba07": 73,
+    "0x051e3c6ee112478e302ed79736ec94d69f47a7ca": 56,
     "0xe6f772346d9fc44942d6cbc92682d497d5b86665": 55,
     "0xb777c52296f0d7d3c5cab7ae0c1aaac6b014b256": 52,
     "0xbc2d8b6f4c4e2803c5e842e6e8250b79ee442b78": 50,
-    "0x051e3c6ee112478e302ed79736ec94d69f47a7ca": 49,
     "0x74164ed868bfad68eaaffa36f828019456d520da": 42,
     "0x19ed0aa07929d205967c4b7d1b8e57b695e9f80b": 40,
     "0x5101e55fb32b1e55ccfff8307cc3f54baf28ed42": 34,
@@ -55,6 +55,7 @@
     "0x2960b6ceb3f06a09d1f754c15fff0e2ce0bd6b78": 14,
     "0xf11e9405b23ca0f53e6135162a85545d780a3737": 12,
     "0x6aa51bd62c0c6b0ba206e25952f4063a7e0cce79": 12,
+    "0x3aeda314ec05bc22e3c26a543e16df2b8cc8fe69": 11,
     "0x4a8e348b29df68fa4d874b043f920150d750604e": 10,
     "0xcc6b5acac871bcb1f60cce29d5917266d8fb956d": 9,
     "0x2af749593978cb79ed11b9959cd82fd128ba4f8d": 8,
@@ -88,7 +89,6 @@
     "0x7cdcdbc9278e5523b62ecb752721c2e5be78334d": 1,
     "0xf068cc171fb3c35ccd39ac5fbc03b33cf954dcfb": 1,
     "0xe66843372f9147dd0f28706c9b4b0c78078be06b": 1,
-    "0x3aeda314ec05bc22e3c26a543e16df2b8cc8fe69": 1,
     "0x09ca48306b00213764b5819dc8a9f1c90fb897f3": 1
   },
   "source": "Element exchange 0xb3e3DfCb2d9f3DdE16d78B9e6EB3538Eb32B5ae1 (0x-Protocol v4 fills)",
